@@ -39,7 +39,7 @@ const DEMO_CMC_COINS: any[] = [
   { id: 1765, name: "EOS",          symbol: "EOS",  slug: "eos",          quotes: demoQuote(0.87,    0.1,  0.4,  0.9,   3.1,    140000000,     960000000) },
 ];
 
-const app = new Hono()
+const app = new Hono().basePath("/api")
   .use(cors({ origin: "*" }))
 
   // Health check
