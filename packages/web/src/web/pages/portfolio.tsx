@@ -29,10 +29,22 @@ function computeRegime(pct1h: number, pct24h: number, pct7d: number, pct30d: num
 
 type Holding = { coinId: number; symbol: string; amount: string };
 
+const PORTFOLIO_KEY = "mm_portfolio";
+
+function loadHoldings(): Holding[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PORTFOLIO_KEY) ?? "[]");
+    if (Array.isArray(saved) && saved.length > 0) return saved;
+  } catch {}
+  return [{ coinId: 1, symbol: "BTC", amount: "" }];
+}
+
+function saveHoldings(holdings: Holding[]) {
+  localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(holdings));
+}
+
 export default function PortfolioPage() {
-  const [holdings, setHoldings] = useState<Holding[]>([
-    { coinId: 1, symbol: "BTC", amount: "" },
-  ]);
+  const [holdings, setHoldings] = useState<Holding[]>(loadHoldings);
   const [modalCoin, setModalCoin] = useState<any | null>(null);
 
   const listing = useQuery({
@@ -101,23 +113,28 @@ export default function PortfolioPage() {
   const riskLabel = riskScore > 65 ? "HIGH RISK" : riskScore > 35 ? "MODERATE" : "LOW RISK";
   const riskColor = riskScore > 65 ? "var(--red)" : riskScore > 35 ? "var(--yellow)" : "var(--green)";
 
+  function setAndSave(next: Holding[]) {
+    setHoldings(next);
+    saveHoldings(next);
+  }
+
   function addRow() {
     const unused = availableCoins.find((c) => !holdings.some((h) => h.coinId === c.id));
-    if (unused) setHoldings([...holdings, { coinId: unused.id, symbol: unused.symbol, amount: "" }]);
+    if (unused) setAndSave([...holdings, { coinId: unused.id, symbol: unused.symbol, amount: "" }]);
   }
 
   function removeRow(idx: number) {
-    setHoldings(holdings.filter((_, i) => i !== idx));
+    setAndSave(holdings.filter((_, i) => i !== idx));
   }
 
   function updateCoin(idx: number, coinId: number) {
     const coin = availableCoins.find((c) => c.id === coinId);
     if (!coin) return;
-    setHoldings(holdings.map((h, i) => i === idx ? { ...h, coinId: coin.id, symbol: coin.symbol } : h));
+    setAndSave(holdings.map((h, i) => i === idx ? { ...h, coinId: coin.id, symbol: coin.symbol } : h));
   }
 
   function updateAmount(idx: number, amount: string) {
-    setHoldings(holdings.map((h, i) => i === idx ? { ...h, amount } : h));
+    setAndSave(holdings.map((h, i) => i === idx ? { ...h, amount } : h));
   }
 
   function exportReport() {
