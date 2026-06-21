@@ -1,5 +1,5 @@
 {
-  "name": "@marketmind/web",
+  "name": "@template/web",
   "private": true,
   "type": "module",
   "exports": {
