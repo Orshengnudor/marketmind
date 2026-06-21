@@ -9,6 +9,8 @@ export default function honoDevPlugin(): Plugin {
         if (!req.url?.startsWith("/api")) return next();
 
         try {
+          // Strip /api prefix — app no longer uses basePath("api")
+          req.url = req.url!.replace(/^\/api/, "") || "/";
           const request = await toWebRequest(req);
           const app = await loadApp(server);
           const response = await app.fetch(request);

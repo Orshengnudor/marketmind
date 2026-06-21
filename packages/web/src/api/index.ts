@@ -40,7 +40,6 @@ const DEMO_CMC_COINS: any[] = [
 ];
 
 const app = new Hono()
-  .basePath("api")
   .use(cors({ origin: "*" }))
 
   // Health check
